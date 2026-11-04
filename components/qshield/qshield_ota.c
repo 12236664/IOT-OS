@@ -1,6 +1,5 @@
 #include "qshield_ota.h"
 
-#include <string.h>
 #include "esp_https_ota.h"
 #include "esp_ota_ops.h"
 
@@ -17,38 +16,32 @@ esp_err_t qshield_ota_init(void)
 
 esp_err_t qshield_ota_start(const char *url)
 {
-    if (url == NULL || url[0] == '\0') {
-        return ESP_ERR_INVALID_ARG;
-    }
+    if (url == NULL || url[0] == '\0') return ESP_ERR_INVALID_ARG;
 
     esp_http_client_config_t http_config = {
         .url = url,
         .keep_alive_enable = true,
+        .cert_pem = NULL,
     };
     esp_https_ota_config_t ota_config = {
         .http_config = &http_config,
     };
     esp_err_t err = esp_https_ota(&ota_config);
-    if (err == ESP_OK) {
-        g_status.pending_verify = true;
-    }
+    if (err == ESP_OK) g_status.pending_verify = true;
     return err;
 }
 
 esp_err_t qshield_ota_confirm_running_image(void)
 {
-    const esp_partition_t *running = esp_ota_get_running_partition();
-    if (running == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
-    return esp_ota_mark_app_valid_cancel_rollback();
+    if (esp_ota_get_running_partition() == NULL) return ESP_ERR_INVALID_STATE;
+    esp_err_t err = esp_ota_mark_app_valid_cancel_rollback();
+    if (err == ESP_OK) g_status.pending_verify = false;
+    return err;
 }
 
 esp_err_t qshield_ota_get_status(qshield_ota_status_t *status)
 {
-    if (status == NULL) {
-        return ESP_ERR_INVALID_ARG;
-    }
+    if (status == NULL) return ESP_ERR_INVALID_ARG;
     *status = g_status;
     return ESP_OK;
 }
