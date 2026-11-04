@@ -5,9 +5,12 @@
 #include "esp_wifi.h"
 
 static qshield_radio_status_t g_status;
+static bool g_wifi_initialized;
 
 esp_err_t qshield_radio_init(void)
 {
+    if (g_wifi_initialized) return ESP_OK;
+
     esp_err_t err = esp_netif_init();
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) return err;
 
@@ -18,6 +21,7 @@ esp_err_t qshield_radio_init(void)
     err = esp_wifi_init(&wifi_config);
     if (err != ESP_OK && err != ESP_ERR_INVALID_STATE) return err;
 
+    g_wifi_initialized = true;
     g_status.wifi_ready = true;
     g_status.ble_ready = false;
     g_status.authenticated = false;
@@ -33,10 +37,11 @@ esp_err_t qshield_radio_get_status(qshield_radio_status_t *status)
 
 esp_err_t qshield_radio_recover(void)
 {
-    if (!g_status.wifi_ready) return qshield_radio_init();
+    if (!g_wifi_initialized) return qshield_radio_init();
 
     esp_err_t err = esp_wifi_stop();
     if (err != ESP_OK && err != ESP_ERR_WIFI_NOT_INIT) return err;
     g_status.wifi_ready = false;
+    g_wifi_initialized = false;
     return qshield_radio_init();
 }
