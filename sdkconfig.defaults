@@ -1,6 +1,6 @@
 # Q-SHIELD ESP32-family defaults
-# Select the exact target with: idf.py set-target <esp32|esp32s2|esp32s3|esp32c3|esp32c6|...>
-# Keep flash size and security settings aligned with the exact board and ESP-IDF version.
+# Select the exact target with: idf.py set-target <target>
+# Add Bluetooth/NimBLE options only on targets and IDF versions that support them.
 CONFIG_SECURE_BOOT_V2_ENABLED=y
 CONFIG_SECURE_FLASH_ENC_ENABLED=y
 CONFIG_SECURE_FLASH_ENC_MODE_RELEASE=y
@@ -9,6 +9,4 @@ CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK=y
 CONFIG_ESP_TLS_USING_MBEDTLS=y
 CONFIG_MBEDTLS_HARDWARE_AES=y
 CONFIG_MBEDTLS_HARDWARE_SHA=y
-CONFIG_BT_ENABLED=y
-CONFIG_BT_NIMBLE_ENABLED=y
 CONFIG_ESP_WIFI_ENABLED=y
