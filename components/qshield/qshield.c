@@ -1,17 +1,20 @@
 #include "qshield.h"
+#include "qshield_radio.h"
+
 #include "esp_log.h"
 #include "esp_system.h"
-#include "esp_timer.h"
 
 static const char *TAG = "qshield-core";
 static qshield_config_t g_config;
 static bool g_initialized;
+static qshield_radio_status_t g_radio_status;
 
 qshield_config_t qshield_default_config(void)
 {
     return (qshield_config_t){
         .enable_wifi = true,
-        .enable_ble = true,
+        /* BLE remains disabled until the target-specific NimBLE adapter is linked. */
+        .enable_ble = false,
         .enable_fault_monitor = true,
         .require_secure_boot = true,
     };
@@ -19,8 +22,18 @@ qshield_config_t qshield_default_config(void)
 
 esp_err_t qshield_init(const qshield_config_t *config)
 {
-    if (config == NULL) {
-        return ESP_ERR_INVALID_ARG;
+    if (config == NULL) return ESP_ERR_INVALID_ARG;
+    if (config->enable_ble) return ESP_ERR_NOT_SUPPORTED;
+
+    if (config->enable_wifi) {
+        esp_err_t err = qshield_radio_init();
+        if (err != ESP_OK) return err;
+        err = qshield_radio_get_status(&g_radio_status);
+        if (err != ESP_OK || !g_radio_status.wifi_ready) {
+            return err == ESP_OK ? ESP_ERR_INVALID_STATE : err;
+        }
+    } else {
+        g_radio_status = (qshield_radio_status_t){0};
     }
 
     g_config = *config;
@@ -35,14 +48,11 @@ esp_err_t qshield_init(const qshield_config_t *config)
 
 esp_err_t qshield_health_sample(qshield_health_sample_t *sample)
 {
-    if (!g_initialized || sample == NULL) {
-        return ESP_ERR_INVALID_STATE;
-    }
+    if (!g_initialized || sample == NULL) return ESP_ERR_INVALID_STATE;
 
-    /* Hardware-specific sensors and radio probes are intentionally isolated here. */
     sample->temperature_milli_c = 0;
     sample->supply_millivolts = 0;
-    sample->reset_count = esp_reset_reason();
-    sample->radio_healthy = g_config.enable_wifi || g_config.enable_ble;
+    sample->reset_count = (uint32_t)esp_reset_reason();
+    sample->radio_healthy = g_config.enable_wifi && g_radio_status.wifi_ready;
     return ESP_OK;
 }
