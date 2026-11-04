@@ -7,6 +7,7 @@ namespace qshield {
 struct Health {
   uint32_t uptime_ms;
   uint8_t watchdog_enabled;
+  uint8_t transport_available;
 };
 
 void begin();
