@@ -1,42 +1,39 @@
 # Q-SHIELD RTOS
 
-A security-first ESP32 IoT platform foundation integrating resilient wireless networking, post-quantum cryptography interfaces, cognitive-radio policy hooks, and hardware health monitoring.
+A security-first ESP32 IoT platform foundation integrating resilient wireless networking, post-quantum cryptography interfaces, policy-controlled recovery, and hardware health monitoring.
 
-> **Status:** Early foundation / research prototype. Cryptographic and radio implementations are intentionally represented by explicit interfaces until they are reviewed and integrated with production-ready libraries and certified hardware.
+> **Status: Development release candidate; not production-ready.** Source-level interfaces and scaffolds are present, but target builds, hardware validation, secure provisioning, signed OTA, and cryptographic-provider integration remain release gates.
 
-## Target
+## Platform versions
 
-- Hardware: ESP32 family
-- Radio: Wi-Fi + Bluetooth/BLE, with an extensible radio abstraction
-- Languages: C/C++ with ESP-IDF and Rust for security/policy components
-- Runtime: ESP-IDF FreeRTOS foundation
+- **ESP32 family:** ESP-IDF/FreeRTOS foundation. Select the exact chip with `idf.py set-target`.
+- **Arduino Uno R3:** constrained watchdog and supervisory runtime. Wi-Fi, BLE, OTA, Secure Boot, flash encryption, and PQC require external hardware or remain unavailable.
 
-## Repository layout
-
-```text
-main/                         ESP-IDF application entry point
-components/qshield/           C interfaces and health-monitoring scaffold
-rust/qshield-policy/          Rust policy engine scaffold
-docs/                         Architecture and threat-model notes
-tests/                        Host-side characterization tests
-```
-
-## Build the ESP-IDF scaffold
+## Build
 
 ```bash
 idf.py set-target esp32
+idf.py reconfigure
 idf.py build
-idf.py flash monitor
 ```
 
-The current scaffold does not claim production post-quantum security. Integrate a reviewed PQC implementation, secure element, secure boot, flash encryption, and signed OTA policy before deployment.
+```bash
+arduino-cli compile \
+  --fqbn arduino:avr:uno \
+  --libraries platforms/arduino-uno-r3/src \
+  platforms/arduino-uno-r3/examples/basic
+```
 
-## Development principles
+## Security boundary
 
-1. Keep the trusted computing base small.
-2. Isolate radio, security, update, and health services.
-3. Fail closed for identity and firmware verification failures.
-4. Make recovery actions policy-controlled and auditable.
-5. Add tests before replacing interfaces with hardware-specific implementations.
+PQC and secure-element operations fail closed until reviewed providers and hardware drivers are integrated. Features marked **Future patch** remain disabled or return an explicit unsupported/error result. Do not enable Secure Boot or flash-encryption eFuses on a production board until the exact board, image-signing process, recovery path, and provisioning record have been reviewed.
+
+## Documentation
+
+- `docs/feature-status.md` — functional, partial, and future-patch status.
+- `docs/final-stage-gates.md` — final release gates.
+- `docs/release-candidate-status.md` — release decision and excluded scope.
+- `docs/hardware-validation-template.md` — required hardware evidence format.
+- `docs/mvp1-build-matrix.md` — build targets and acceptance criteria.
 
 Licensed under the MIT License; see `LICENSE`.
