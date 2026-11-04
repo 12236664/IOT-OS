@@ -1,3 +1,6 @@
+# ESP32-S3 target
+set(IDF_TARGET esp32s3)
+
 idf_component_register(
     SRCS
         "qshield.c"
