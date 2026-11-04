@@ -33,3 +33,6 @@ pub extern "C" fn qshield_policy_decide(input: PolicyInput) -> RecoveryAction {
         RecoveryAction::Continue
     }
 }
+
+#[cfg(test)]
+mod tests;
