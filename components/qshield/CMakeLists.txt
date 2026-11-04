@@ -1,5 +1,5 @@
-# ESP32-S3 target
-set(IDF_TARGET esp32s3)
+# Common ESP-IDF component for supported ESP32 families.
+# Select the target at project level with: idf.py set-target <target>
 
 idf_component_register(
     SRCS
