@@ -1,12 +1,11 @@
-# Q-SHIELD ESP32-S3 security defaults
-# Validate these settings against the exact board, ESP-IDF version, and provisioning plan.
-CONFIG_IDF_TARGET="esp32s3"
+# Q-SHIELD ESP32-family defaults
+# Select the exact target with: idf.py set-target <esp32|esp32s2|esp32s3|esp32c3|esp32c6|...>
+# Keep flash size and security settings aligned with the exact board and ESP-IDF version.
 CONFIG_SECURE_BOOT_V2_ENABLED=y
 CONFIG_SECURE_FLASH_ENC_ENABLED=y
 CONFIG_SECURE_FLASH_ENC_MODE_RELEASE=y
 CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
 CONFIG_BOOTLOADER_APP_ANTI_ROLLBACK=y
-CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
 CONFIG_ESP_TLS_USING_MBEDTLS=y
 CONFIG_MBEDTLS_HARDWARE_AES=y
 CONFIG_MBEDTLS_HARDWARE_SHA=y
